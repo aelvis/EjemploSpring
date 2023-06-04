@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout/frontend :: heads(~{::title},~{::links})}"></head>
+
+<body>
+
+	<nav th:replace="~{layout/frontend :: menu}"></nav>
+
+
+<div class="container py-4">
+		<div class="card bg-light">
+			<div class="card-header"> PEDIDOS CLIENTE</div>
+			<div class="card-body">
+				<h4 class="card-title">
+					<a class="btn btn-light"
+						th:href="@{'/usuarios/ver/' + ${pedido.usuario.id}}"
+						th:text="'&laquo; volver'"></a>
+				</h4>
+
+				<form th:action="@{/pedidos/crear-pedidos}" th:object="${pedido}"
+					method="post">
+
+					<div class="form-group row">
+						<label for="cliente" class="col-sm-2 col-form-label"
+							th:text="'Cliente'"></label>
+						<div class="col-sm-6">
+							<input name="cliente"
+								th:value="${pedido.usuario.correo}"
+								class="form-control" disabled='disabled' />
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="descripcion" class="col-sm-2 col-form-label"
+							th:text="'Descripción'"></label>
+						<div class="col-sm-6">
+							<input type="text" th:field="*{descripcion}" class="form-control" th:errorclass="'form-control is-invalid'" />
+							<div class="invalid-feedback" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="observacion" class="col-sm-2 col-form-label"
+							th:text="'Observación'"></label>
+						<div class="col-sm-6">
+							<textarea th:field="*{observacion}" class="form-control"></textarea>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label for="buscar_producto" class="col-sm-2 col-form-label"
+							th:text="'Buscar producto'"></label>
+						<div class="col-sm-6">
+							<input type="text" name="buscar_producto" id="buscar_producto"
+								class="form-control" />
+						</div>
+					</div>
+					<table th:replace="layout/frontend :: itemsFactura"></table>
+
+					<table id="cargarItemProductos"
+						class="table table-sm table-striped table-hover">
+						<thead>
+							<tr>
+								<th>Nombre</th>
+								<th>Precio</th>
+								<th>Cantidad</th>
+								<th>Total</th>
+								<th>Eliminar</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+					<h5>Total <span class="badge text-bg-danger" id="gran_total">0</span></h5>
+					<div class="form-group row">
+						<div class="col-sm-6">
+							<input type="submit" th:value="'Crear Pedido'"
+								class="btn btn-success" />
+						</div>
+					</div>
+				</form>
+
+
+			</div>
+		</div>
+	</div>
+
+
+	<div th:replace="~{layout/frontend :: scripts}"></div>
+		<script type="text/javascript" th:fragment="javascript">
+		$(document).ready(function() {
+
+			$("#buscar_producto").autocomplete({
+
+				source : function(request, response) {
+					$.ajax({
+						url : "/pedidos/productos/" + request.term,
+						dataType : "json",
+						data : {
+							term : request.term
+						},
+						success : function(data) {
+							response($.map(data, function(item) {
+								return {
+									value : item.id,
+									label : item.nombre,
+									precio : item.precio,
+								};
+							}));
+						},
+					});
+				},
+				select : function(event, ui) {
+					if(itemsHelper.hasProducto(ui.item.value)){
+						itemsHelper.incrementaCantidad(ui.item.value, ui.item.precio);
+						return false;
+					}
+					
+					var linea = $("#plantillaItemsPedidos").html();
+
+					linea = linea.replace(/{ID}/g, ui.item.value);
+					linea = linea.replace(/{NOMBRE}/g, ui.item.label);
+					linea = linea.replace(/{PRECIO}/g, ui.item.precio);
+
+					$("#cargarItemProductos tbody").append(linea);
+					itemsHelper.calcularImporte(ui.item.value, ui.item.precio, 1);
+
+					return false;
+				}
+			});
+
+			$("form").submit(function(){
+				$("#plantillaItemsPedidos").remove();
+				return;
+			});
+
+		});
+		
+		var itemsHelper = {
+				calcularImporte: function(id, precio, cantidad){
+					$("#total_importe_" + id).html(parseInt(precio) * parseInt(cantidad));
+					this.calcularGranTotal();
+				},
+				hasProducto: function(id){
+					
+					var resultado = false;
+					
+					$('input[name="item_id[]"]').each(function(){
+						if(parseInt(id) == parseInt($(this).val()) ){
+							resultado = true;
+						}
+					});
+					
+					return resultado;
+				},
+				incrementaCantidad: function(id, precio){
+					var cantidad = $("#cantidad_" + id).val() ? parseInt($("#cantidad_" + id).val()) : 0;
+					$("#cantidad_" + id).val(++cantidad);
+					this.calcularImporte(id, precio, cantidad);
+				},
+				eliminarLineaPedido: function(id){
+					$("#row_" + id).remove();
+					this.calcularGranTotal();
+				},
+				calcularGranTotal: function(){
+					var total = 0;
+					
+					$('span[id^="total_importe_"]').each(function(){
+						total += parseInt($(this).html());
+					});
+					
+					$('#gran_total').html(total);
+				}
+		}
+	</script>
+
+</body>
+
+</html>

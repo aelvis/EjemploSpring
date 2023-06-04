@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout/frontend :: heads(~{::title},~{::links})}"></head>
+
+<body>
+
+	<nav th:replace="~{layout/frontend :: menu}"></nav>
+
+
+	<div class="container text-center">
+		<div class="row">
+		<div class="col-md-3"></div>
+		<div class="col-md-6">
+						<form name="form" th:object="${usuario}" th:action="@{/usuarios/actualizar}" method="POST">
+				<div class="mb-3">
+					<label for="recipient-name" class="col-form-label">Correo:</label>
+					<input th:field="*{correo}" type="text" class="form-control" id="recipient-name">
+					<input th:field="*{id}" type="hidden" class="form-control" id="recipient-name">
+				</div>
+				<div class="mb-3">
+					<label for="message-text" class="col-form-label">Password:</label>
+					<input th:field="*{password}" type="text" class="form-control" id="recipient-name">
+				</div>
+				<div class="mb-3">
+					<label for="message-text" class="col-form-label">Estado:</label>
+					<select th:field="*{estado}" class="form-select" aria-label="Default select example">
+						<option th:each="es:${estados}" th:text="${es.nombre}" th:value="${es.id}"></option>
+					</select>
+				</div>
+				<div class="mb-3">
+
+					<ul>
+						<li th:each="rol : ${rols}">
+							<input type="checkbox" th:field="*{roles}" th:value="${rol.id}" />
+							<label th:for="${#ids.prev('roles')}" th:text="${rol.nombre}"></label>
+						</li>
+					</ul>
+				</div>
+<button type="submit" class="btn btn-primary">Guardar</button>
+		</form>
+		</div>
+		
+			
+	
+		<div class="col-md-3"></div>
+
+
+
+
+	</div>
+	</div>
+	</div>
+
+
+	<div th:replace="~{layout/frontend :: scripts}"></div>
+
+</body>
+
+</html>

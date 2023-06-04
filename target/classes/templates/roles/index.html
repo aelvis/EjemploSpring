@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout/frontend :: heads(~{::title},~{::links})}"></head>
+
+<body>
+	
+	<nav th:replace="~{layout/frontend :: menu}"></nav>
+	
+	<div class="container">
+		<div class="row">
+			<div class="col mt-3">
+				
+				
+
+					
+					
+					
+					<form class="row g-3" name="form" th:action="@{/roles/index?page=0&}" method="GET">
+ <div class="col-auto"> 
+	 <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal"
+					data-bs-target="#exampleModal">Crear Roles</button>
+ </div>
+ 
+  <div class="col-auto">
+    <label for="inputPassword2" class="visually-hidden">Por Nombre</label>
+    <input type="text" name="enviar" class="form-control" id="enviar" placeholder="Nombre">
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-success mb-3">Buscar</button>
+    <a th:href="@{/estados/index}" class="btn btn-info mb-3">Limpiar</a>
+    
+  </div> 
+</form>									
+				<table class="table">
+					<thead>
+						<tr>
+							<th scope="col">Nombre</th>
+							<th scope="col">Herramientas</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="es:${usuarios}">
+							<td th:text="${es.nombre}"></td>
+							<td>
+
+								<a th:href="@{'/roles/index/' + ${es.id}}" class="btn btn-success">Editar</a>
+								<a th:href="@{'/roles/eliminar/' + ${es.id}}" class="btn btn-danger">Eliminar</a>
+
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			<nav th:replace="~{layout/frontend :: paginacion}"></nav>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+		aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel">Agregar Roles</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<form name="form" th:object="${rol}" th:action="@{/roles/crear}" method="POST">
+						<div class="mb-3">
+							<label for="recipient-name" class="col-form-label">Nombre:</label>
+							<input th:field="*{nombre}" type="text" class="form-control" id="recipient-name">
+						</div>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+					<button type="submit" class="btn btn-primary">Guardar</button>
+				</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+	<div th:replace="~{layout/frontend :: scripts}"></div>
+
+</body>
+
+</html>

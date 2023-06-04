@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout/frontend :: heads(~{::title},~{::links})}"></head>
+
+<body>
+
+	<nav th:replace="~{layout/frontend :: menu}"></nav>
+
+
+	<div class="container">
+		<div class="row">
+
+			<div class="col-md-12">
+
+				<a class="btn btn-light" th:href="@{'/pedidos/crear/' + ${usuario.id}}" th:text="'Crear Pedido'"></a>
+
+				<div th:if="${usuario.pedidos.isEmpty()}" class="alert alert-primary"
+					th:text="'No hay Pedidos de '+${usuario.correo}"></div>
+
+				<table class="table" th:if="${!usuario.pedidos.isEmpty()}">
+					<thead>
+						<tr>
+							<th scope="col">DESCRIPCIÓN</th>
+							<th scope="col">FECHA</th>
+							<th scope="col">PRODUCTOS</th>
+							<th scope="col">TOTAL</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="ped: ${usuario.pedidos}">
+							<td th:text="${ped.descripcion}"></td>
+							<td th:text="${ped.fecha}"></td>
+							<td>
+
+								<div class="card text-bg-success mb-3" style="width: 18rem;" th:each="it: ${ped.items}">
+									<div class="card-header" th:text="'Nombre: '+${it.producto.nombre}"></div>
+									<ul class="list-group list-group-flush">
+										<li class="list-group-item" th:text="'Precio: '+${it.producto.precio}"></li>
+										<li class="list-group-item" th:text="'Cantidad: '+${it.cantidad}"></li>
+									</ul>
+								</div>
+							</td>
+							<td th:text="${ped.total}"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+
+
+
+		</div>
+	</div>
+	</div>
+
+
+	<div th:replace="~{layout/frontend :: scripts}"></div>
+
+</body>
+
+</html>
